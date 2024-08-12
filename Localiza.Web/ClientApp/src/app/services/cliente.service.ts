@@ -7,7 +7,7 @@ import { Cliente } from './cliente.model'; // Assuming the model is defined in c
   providedIn: 'root'
 })
 export class ClienteService {
-  private baseUrl: string = 'https://localhost:7012/clientes';
+  private baseUrl: string = 'https://localhost:7012/api/clientes';
 
   constructor(private http: HttpClient) {}
 

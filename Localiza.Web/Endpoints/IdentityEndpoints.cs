@@ -1,10 +1,13 @@
 using Dapper;
-using Localiza.DAL;
 using Localiza.Security;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 using System.Data;
 using System.Threading.Tasks;
+using Localiza.Web.DAL;
+using Localiza.Web.Security;
+using Localiza.Web.Services;
+
 public record LoginRequest(string Username,string Password);
 public static class IdentityApiResource
 {    
@@ -86,15 +89,28 @@ public static class IdentityApiResource
     }
     public static void RegisterIdentityEndpoints(this WebApplication app)
     {
+        app.MapPost("api/auth/login",async (
+            [FromBody]LoginRequest request
+            , AuthService authService
+            , IUserService userService) => {
+                var user = await userService.Authenticate(request);
+                if (user == null)
+                {
+                    return Results.Unauthorized();
+                }
+
+                var token = authService.GenerateToken(user);
+                return Results.Ok(new { Token = token });
+        });
         app.MapPost("api/usuarios", CreateUsuarioAsyncEndpoint());
         app.MapPut("api/usuarios/{id:int}", UpdateUsuarioAsyncEndpoint());
         app.MapPut("api/usuarios/{id:int}/password", UpdateUsuarioPasswordAsyncEndpoint());
         app.MapDelete("api/usuarios/{id:int}", DeleteUsuarioAsyncEndpoint());
     }
 
-    public static Func<int, CreateConnectionFactory, ILogger<CreateUsuarioRequest>, Task<IResult>> DeleteUsuarioAsyncEndpoint()
+    public static Func<int, DbConnectionFactory, ILogger<CreateUsuarioRequest>, Task<IResult>> DeleteUsuarioAsyncEndpoint()
     {
-        return async (int id, [FromServices]CreateConnectionFactory factory,[FromServices] ILogger<CreateUsuarioRequest> logger) =>
+        return async (int id, [FromServices]DbConnectionFactory factory,[FromServices] ILogger<CreateUsuarioRequest> logger) =>
         {
             try
             {
@@ -113,9 +129,9 @@ public static class IdentityApiResource
         };
     }
 
-    public static Func<int, string, CreateConnectionFactory, Task<IResult>> UpdateUsuarioPasswordAsyncEndpoint()
+    public static Func<int, string, DbConnectionFactory, Task<IResult>> UpdateUsuarioPasswordAsyncEndpoint()
     {
-        return async (int id, string newPassword, [FromServices]CreateConnectionFactory factory) =>
+        return async (int id, string newPassword, [FromServices]DbConnectionFactory factory) =>
         {
             using var db = factory();
             var updated = await db.UpdateUserPasswordAsync(id, newPassword);
@@ -123,9 +139,9 @@ public static class IdentityApiResource
         };
     }
 
-    public static Func<int, UpdateUsuarioRequest, CreateConnectionFactory, Task<IResult>> UpdateUsuarioAsyncEndpoint()
+    public static Func<int, UpdateUsuarioRequest, DbConnectionFactory, Task<IResult>> UpdateUsuarioAsyncEndpoint()
     {
-        return async (int id, [FromBody] UpdateUsuarioRequest req, [FromServices]CreateConnectionFactory factory) =>
+        return async (int id, [FromBody] UpdateUsuarioRequest req, [FromServices]DbConnectionFactory factory) =>
         {
             
             var user = new Usuario()
@@ -140,9 +156,9 @@ public static class IdentityApiResource
         };
     }
 
-    public static Func<CreateUsuarioRequest, CreateConnectionFactory, Task<IResult>> CreateUsuarioAsyncEndpoint()
+    public static Func<CreateUsuarioRequest, DbConnectionFactory, Task<IResult>> CreateUsuarioAsyncEndpoint()
     {
-        return async ([FromBody] CreateUsuarioRequest req, [FromServices]CreateConnectionFactory factory) =>
+        return async ([FromBody] CreateUsuarioRequest req, [FromServices]DbConnectionFactory factory) =>
         {
             var usuario = new Usuario()
             {

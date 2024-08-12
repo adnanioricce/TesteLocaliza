@@ -7,8 +7,6 @@ import { RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './components/nav-menu/nav-menu.component';
 import { HomeComponent } from './home/home.component';
-// import { CounterComponent } from './counter/counter.component';
-// import { FetchDataComponent } from './fetch-data/fetch-data.component';
 import { CreateEditModalComponent  } from "./components/create-edit-modal/app-cobranca-modal.component";
 import { CobrancasTableComponent } from './components/cobrancas-table/cobrancas-table.component'
 import { ClienteTableComponent } from './components/cliente-table/cliente-table.component';

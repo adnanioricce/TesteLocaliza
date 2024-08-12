@@ -1,10 +1,11 @@
 using Dapper;
-using Localiza.DAL;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
+using Localiza.Web.DAL;
+
 public static class ClienteApiResource
 {    
     public static async Task<int> CreateClienteAsync(this IDbConnection connection, Cliente cliente)
@@ -17,7 +18,7 @@ public static class ClienteApiResource
         return await connection.ExecuteScalarAsync<int>(sql, cliente);
     }
 
-    public static async Task<Cliente> GetClienteByIdAsync(this IDbConnection connection, int id)
+    public static async Task<Cliente?> GetClienteByIdAsync(this IDbConnection connection, int id)
     {
         const string sql = @"
             SELECT Id, UsuarioId, Documento, Nome, Telefone, Endereco
@@ -63,20 +64,20 @@ public static class ClienteApiResource
     }
     public static void RegisterClienteEndpoints(this WebApplication app)
     {
-        app.MapPost("/clientes", CreateClienteAsyncEndpoint());
+        app.MapPost("api/clientes", CreateClienteAsyncEndpoint());
 
-        app.MapGet("/clientes/{id:int}", GetClienteByIdAsyncEndpoint());
+        app.MapGet("api/clientes/{id:int}", GetClienteByIdAsyncEndpoint());
 
         app.MapGet("api/clientes/{id:int}/list", ListClientesAsyncEndpoint());
 
-        app.MapPut("/clientes/{id:int}", UpdateClienteAsyncEndpoint());
+        app.MapPut("api/clientes/{id:int}", UpdateClienteAsyncEndpoint());
 
-        app.MapDelete("/clientes/{id:int}", DeleteClienteAsyncEndpoint());
+        app.MapDelete("api/clientes/{id:int}", DeleteClienteAsyncEndpoint());
     }
 
-    private static Func<int, CreateConnectionFactory, Task<IResult>> DeleteClienteAsyncEndpoint()
+    private static Func<int, DbConnectionFactory, Task<IResult>> DeleteClienteAsyncEndpoint()
     {
-        return async (int id, [FromServices]CreateConnectionFactory factory) =>
+        return async (int id, [FromServices]DbConnectionFactory factory) =>
         {
             using var db = factory();
             var deleted = await db.DeleteClienteAsync(id);
@@ -84,9 +85,9 @@ public static class ClienteApiResource
         };
     }
 
-    private static Func<int, Cliente, CreateConnectionFactory, Task<IResult>> UpdateClienteAsyncEndpoint()
+    private static Func<int, Cliente, DbConnectionFactory, Task<IResult>> UpdateClienteAsyncEndpoint()
     {
-        return async (int id, Cliente cliente, [FromServices]CreateConnectionFactory factory) =>
+        return async (int id, Cliente cliente, [FromServices]DbConnectionFactory factory) =>
         {
             using var db = factory();
             if (id != cliente.Id)
@@ -99,9 +100,9 @@ public static class ClienteApiResource
         };
     }
 
-    private static Func<int,CreateConnectionFactory,Task<IResult>> ListClientesAsyncEndpoint()
+    private static Func<int,DbConnectionFactory,Task<IResult>> ListClientesAsyncEndpoint()
     {
-        return async (int id,[FromServices]CreateConnectionFactory factory) =>
+        return async (int id,[FromServices]DbConnectionFactory factory) =>
         {
             using var db = factory();
             var clientes = await db.GetAllClientesAsync(id);
@@ -109,9 +110,9 @@ public static class ClienteApiResource
         };
     }
 
-    private static Func<int, CreateConnectionFactory, Task<IResult>> GetClienteByIdAsyncEndpoint()
+    private static Func<int, DbConnectionFactory, Task<IResult>> GetClienteByIdAsyncEndpoint()
     {
-        return async (int id, [FromServices]CreateConnectionFactory factory) =>
+        return async (int id, [FromServices]DbConnectionFactory factory) =>
         {
             using var db = factory();
             var cliente = await db.GetClienteByIdAsync(id);
@@ -119,9 +120,9 @@ public static class ClienteApiResource
         };
     }
 
-    private static Func<Cliente, CreateConnectionFactory, Task<IResult>> CreateClienteAsyncEndpoint()
+    private static Func<Cliente, DbConnectionFactory, Task<IResult>> CreateClienteAsyncEndpoint()
     {
-        return async (Cliente cliente, [FromServices]CreateConnectionFactory factory) =>
+        return async (Cliente cliente, [FromServices]DbConnectionFactory factory) =>
         {
             using var db = factory();
             var id = await db.CreateClienteAsync(cliente);

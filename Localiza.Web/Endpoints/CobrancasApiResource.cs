@@ -1,10 +1,11 @@
 using Dapper;
-using Localiza.DAL;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
+using Localiza.Web.DAL;
+
 public static class CobrancasApiResource
 {
     public static async Task<int> CreateCobrancaAsync(this IDbConnection connection, Cobranca cobranca)
@@ -24,7 +25,7 @@ public static class CobrancasApiResource
 
         return await connection.ExecuteScalarAsync<int>(sql, cobranca);
     }
-    public static async Task<Cobranca> GetCobrancaByIdAsync(this IDbConnection connection, int id){
+    public static async Task<Cobranca?> GetCobrancaByIdAsync(this IDbConnection connection, int id){
         const string sql = @"SELECT * FROM Cobrancas WHERE Id = @Id;";
         return await connection.QueryFirstOrDefaultAsync<Cobranca>(sql,id);
     }
@@ -36,7 +37,7 @@ public static class CobrancasApiResource
     }
     public static void RegisterCobrancaEndpoints(this WebApplication app)
     {
-        app.MapPost("api/cobrancas", async (Cobranca cobranca, [FromServices]CreateConnectionFactory factory) =>
+        app.MapPost("api/cobrancas", async (Cobranca cobranca, [FromServices]DbConnectionFactory factory) =>
         {
             try
             {
@@ -49,7 +50,7 @@ public static class CobrancasApiResource
                 return Results.NotFound(ex.Message);
             }
         });
-        app.MapGet("api/cobrancas/{id:int}",async (int id,[FromServices]CreateConnectionFactory factory,[FromServices]ILogger<CreateCobrancaRequest> logger) => {
+        app.MapGet("api/cobrancas/{id:int}",async (int id,[FromServices]DbConnectionFactory factory,[FromServices]ILogger<CreateCobrancaRequest> logger) => {
             try
             {
                 using var db = factory();
@@ -62,7 +63,7 @@ public static class CobrancasApiResource
                 return Results.StatusCode(500);
             }
         });
-        app.MapGet("api/clientes/{id:int}/cobrancas",async (int id,[FromServices]CreateConnectionFactory factory,[FromServices]ILogger<CreateCobrancaRequest> logger) => {
+        app.MapGet("api/clientes/{id:int}/cobrancas",async (int id,[FromServices]DbConnectionFactory factory,[FromServices]ILogger<CreateCobrancaRequest> logger) => {
             try
             {
                 using var db = factory();
@@ -82,7 +83,7 @@ public record CreateCobrancaRequest {
     public decimal Valor { get; set; }
     public DateTime DataVencimento { get; set; }
     // public bool Pago { get; set; }
-    public string Descricao { get; set; }
+    public string Descricao { get; set; } = default!;
 }
 public record Cobranca
 {
@@ -91,5 +92,5 @@ public record Cobranca
     public decimal Valor { get; set; }
     public DateTime DataVencimento { get; set; }
     public bool Pago { get; set; }
-    public string Descricao { get; set; }
+    public string Descricao { get; set; } = default!;
 }

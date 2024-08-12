@@ -15,7 +15,7 @@ using Xunit;
 public class UserApiTests : IAsyncLifetime
 {
     private readonly HttpClient _httpClient;
-    private IContainer _dbContainer;
+    private IContainer? _dbContainer;
     private readonly string _apiBaseUrl;
 
     public UserApiTests()
@@ -47,6 +47,9 @@ public class UserApiTests : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
+        if(_dbContainer is null){
+            return;
+        }
         await _dbContainer.StopAsync();
         await _dbContainer.DisposeAsync();
     }

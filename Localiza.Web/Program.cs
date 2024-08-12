@@ -1,63 +1,29 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Localiza.DAL;
 using Localiza.Services;
+using Localiza.Services.Identity;
+using Localiza.Web.DAL;
+using Localiza.Web.Helpers;
+using Localiza.Web.Security;
+using Localiza.Web.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Protocols.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
-static async Task SeedDatabase(CreateConnectionFactory factory, ILogger<EntryPoint> logger)
-{
-    using var conn = factory();
-    conn.Open();
-    var usuarios = new List<Usuario>();
-    foreach (var usuario in SeedDataGenerator.GenerateUsuarios(3))
-    {
-        var id = await conn.CreateUsuarioAsync(usuario, usuario.HashSenha);
-        usuarios.Add(usuario with
-        {
-            Id = id
-        });
-    }
-    logger.LogInformation("created users: {users}", JsonSerializer.Serialize(usuarios));
-    var clientes = new List<Cliente>();
-    foreach (var cliente in SeedDataGenerator.GenerateClientes(10, usuarios))
-    {
-        var id = await conn.CreateClienteAsync(cliente);
-        clientes.Add(cliente with
-        {
-            Id = id
-        });
-    }
-    logger.LogInformation("created clientes: {clientes}", JsonSerializer.Serialize(clientes));
-    var cobrancas = new List<Cobranca>();
-    foreach (var cliente in clientes)
-    {
-        foreach (var cobranca in SeedDataGenerator.GenerateCobrancas(10, cliente.Id))
-        {
-            var id = await conn.CreateCobrancaAsync(cobranca);
-            cobrancas.Add(cobranca with
-            {
-                Id = id
-            });
-        }
-    }
-    logger.LogInformation("created clientes: {cobrancas}", JsonSerializer.Serialize(cobrancas));
-    
-}
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // builder.Environment.
 var connStr = builder.Configuration.GetConnectionString("Default");
 builder.Services.AddControllersWithViews();
-builder.Services.AddSingleton<CreateConnectionFactory>(sp =>
+builder.Services.AddSingleton<DbConnectionFactory>(sp =>
 {
     // var connStr = builder.Configuration.GetConnectionString("Default");        
     // return Connection.Factory(connStr);
     return () => {            
-        var conn = new NpgsqlConnection(connStr);
-        Console.WriteLine("connStr:{0}",connStr);
+        var conn = new NpgsqlConnection(connStr);        
         return conn;
     };
 });
@@ -71,6 +37,10 @@ builder.Services.AddAuthentication(options =>
 })
     .AddJwtBearer(options =>
     {
+        var jwtKey = builder.Configuration["Jwt:Key"] ?? "";
+        if(string.IsNullOrWhiteSpace(jwtKey)){
+            throw new InvalidConfigurationException("configuration key 'Jwt:Key' is present or empty");
+        }
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -79,7 +49,7 @@ builder.Services.AddAuthentication(options =>
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Issuer"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
     });
 builder.Services.AddEndpointsApiExplorer();
@@ -94,14 +64,7 @@ builder.Services.AddCors(opt => {
     });
 });
 var app = builder.Build();
-if(args.Length > 0){      
-    if(args.Contains("--seed"))
-    {
-        var factory = app.Services.GetRequiredService<CreateConnectionFactory>();
-        var logger = app.Services.GetRequiredService<ILogger<EntryPoint>>();
-        await SeedDatabase(factory, logger);
-    }
-}
+await Cli.Run(app, args);
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
