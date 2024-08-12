@@ -1,0 +1,90 @@
+<div class="container">
+  <h1>Clientes</h1>
+  <!-- <form [formGroup]="clienteForm" (ngSubmit)="addOrUpdateCliente()">
+    <input formControlName="nome" placeholder="Nome" required>
+    <input formControlName="documento" type="text" placeholder="Documento" required>
+    <input formControlName="telefone" type="text" placeholder="Telefone" required>
+    <input formControlName="endereco" type="text" placeholder="Endereco" required>
+    <button type="submit">{{ isEditing ? 'Atualizar' : 'Cadastrar' }}</button>
+  </form> -->
+  <!-- <app-cobranca-modal   
+    [addCobrancaEvent]="initAddCobrancaEvent.asObservable()" 
+    (cobrancaAdded)="onCobrancaAdded($event)"
+    (modalStateChange)="toggleModal($event)"    
+    *ngIf="isAddingCobranca"></app-cobranca-modal> -->    
+  <button (click)="isAddingCliente = !isAddingCliente">Cadastrar</button>
+  <!-- Cliente Modal Form -->
+  <div class="modal" *ngIf="isAddingCliente">
+    <div class="modal-content">
+      <span class="close" (click)="isAddingCliente = !isAddingCliente">&times;</span>
+      <h2>Registrar Novo Cliente</h2>
+      <form [formGroup]="clienteForm" (ngSubmit)="addOrUpdateCliente()">        
+        <div>
+          <label for="nome">Nome:</label>
+          <input id="nome" type="text" formControlName="nome" name="nome" required>
+        </div>
+        <div>
+          <label for="documento">Documento:</label>
+          <input id="documento" type="string" formControlName="documento" name="documento" required>
+        </div>
+        <div>
+          <label for="endereco">Endereco:</label>
+          <input id="endereco" formControlName="endereco" name="endereco">
+        </div>
+        <div>
+          <label for="telefone">Telefone:</label>
+          <input id="telefone" formControlName="telefone" name="telefone">
+        </div>
+        <button type="submit">Registrar Cliente</button>
+      </form>
+    </div>
+  </div>
+  <div class="modal" *ngIf="currentClienteId !== 0">
+    <div class="modal-content">
+      <span class="close" (click)="closeModal()">&times;</span>
+      <h2>Add Cobranca</h2>
+      <form (ngSubmit)="addCobranca()">        
+        <div>
+          <label for="valor">Valor:</label>
+          <input id="valor" type="number" [(ngModel)]="newCobranca.valor" name="valor" required>
+        </div>
+        <div>
+          <label for="dataVencimento">Data Vencimento:</label>
+          <input id="dataVencimento" type="date" [(ngModel)]="newCobranca.dataVencimento" name="dataVencimento" required>
+        </div>
+        <div>
+          <label for="descricao">Descrição:</label>
+          <input id="descricao" [(ngModel)]="newCobranca.descricao" name="descricao">
+        </div>
+        <button type="submit">Registrar Cobranca</button>
+      </form>
+    </div>
+  </div>
+  <table >
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Nome</th>
+        <th>Documento</th>
+        <th>Telefone</th>          
+        <th>Endereco</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let cliente of clientes">
+        <td>{{ cliente.id }}</td>
+        <td>{{ cliente.nome }}</td>
+        <td>{{ cliente.documento }}</td>
+        <td>{{ cliente.telefone }}</td>
+        <td>{{ cliente.endereco }}</td>
+        <td>
+          <!-- <button (click)="editCliente(cliente)">Editar</button> -->
+          <button (click)="goToCobrancas(cliente.id)">Cobrancas</button>
+          <button (click)="openCobrancaModal(cliente.id)">Adicionar Cobranca</button>
+          <button (click)="deleteCliente(cliente.id)">Excluir</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  
+</div>

@@ -1,0 +1,38 @@
+<div class="modal">
+  <div class="modal-content">
+    <span class="close" (click)="closeModal()">&times;</span>
+    <h2>Add Cobranca</h2>
+    <form (ngSubmit)="addCobranca()">
+      <div>
+        <label for="valor">Valor:</label>
+        <input id="valor" type="number" [(ngModel)]="newCobranca.valor" name="valor" required>
+      </div>
+      <div>
+        <label for="dataVencimento">Data Vencimento:</label>
+        <input id="dataVencimento" type="date" [(ngModel)]="newCobranca.dataVencimento" name="dataVencimento" required>
+      </div>
+      <div>
+        <label for="descricao">Descrição:</label>
+        <input id="descricao" [(ngModel)]="newCobranca.descricao" name="descricao">
+      </div>
+      <button type="submit">Add Cobranca</button>
+    </form>
+  </div>
+</div>
+<!-- <div class="modal">
+    <div class="modal-content">
+        <span class="close" (click)="closeModal()">&times;</span>
+        <h2>{{ isEdit ? 'Editar Cliente' : 'Cadastrar Cliente' }}</h2>
+        <form (ngSubmit)="save()">
+            <label for="name">Nome:</label>
+            <input type="text" [(ngModel)]="cliente.name" name="name" required>
+            <label for="paginas">Páginas:</label>
+            <input type="number" [(ngModel)]="cliente.paginas" name="paginas" required>
+            <label for="alertas">Alertas:</label>
+            <input type="number" [(ngModel)]="cliente.alertas" name="alertas" required>
+            <label for="atrasos">Atrasos:</label>
+            <input type="number" [(ngModel)]="cliente.atrasos" name="atrasos" required>
+            <button type="submit" class="btn btn-success">{{ isEdit ? 'Atualizar' : 'Cadastrar' }}</button>
+        </form>
+    </div>
+</div> -->
