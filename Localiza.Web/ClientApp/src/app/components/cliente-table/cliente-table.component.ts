@@ -4,13 +4,13 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
-import { Cliente } from 'src/app/services/cliente.model';
+import { Cliente, ClienteRowViewModel, toView } from 'src/app/services/cliente.model';
 import { ClienteService } from 'src/app/services/cliente.service';
-import { Cobranca } from 'src/app/services/cobranca.model';
+import { ICobranca } from 'src/app/services/cobranca.model';
 import { CobrancaService } from 'src/app/services/cobranca.service';
 interface CreateClienteRequest {
   nome: string
-  documento: string 
+  documento: string
   endereco: string
   telefone: string
 }
@@ -19,18 +19,19 @@ interface CreateClienteRequest {
   templateUrl: './cliente-table.component.html',
   styleUrls: ['./cliente-table.component.css']
 })
-export class ClienteTableComponent {  
+export class ClienteTableComponent {
   // clienteService: ClienteService
   isAddingCliente: boolean = false
   addCobrancaMsg:object = {clienteId: 0}
   initAddCobrancaEvent: Subject<number> = new Subject<number>();
   isAddingCobranca:boolean = false
   clientes:Cliente[] = []
-  newCliente: Cliente = { id: 0, usuarioId: 0, documento: '', nome: '',telefone: '',endereco:'' };
+  newCliente: Cliente = { id: 0, usuarioId: 0, documento: '', nome: '',telefone: '',endereco:'',cobrancas:[] };
   clienteForm: FormGroup;
   isEditing = false;
-  currentClienteId: number = 0;  
-  newCobranca: Cobranca = { id: 0, clienteId: 0, valor: 0, dataVencimento: new Date(), pago: false, descricao: '' };
+  currentClienteId: number = 0;
+  newCobranca: ICobranca = { id: 0, clienteId: 0, valor: 0, dataVencimento: new Date(), pago: false, descricao: '' };
+  viewModel: ClienteRowViewModel[] = []
   /**
    *
    */
@@ -39,17 +40,17 @@ export class ClienteTableComponent {
     ,private cobrancaService: CobrancaService
     ,private authService: AuthService
     ,private fb: FormBuilder
-    ,private router: Router) {        
+    ,private router: Router) {
     this.clienteForm = this.fb.group({
       nome: ['',Validators.required],
       documento: ['', Validators.required],
       telefone: ['', Validators.required],
       endereco: ['', Validators.required]
-    });
+    });    
   }
   public get inputToChild(): object{
     return this.addCobrancaMsg
-  }  
+  }
   public set inputToChild(value:object) {
     this.addCobrancaMsg = value
   }
@@ -65,10 +66,11 @@ export class ClienteTableComponent {
     this.clienteService.loadClientes(userId).subscribe(clientes => {
       this.clientes = (clientes ?? []);
       this.clientes.sort((a,b) => a.id > b.id ? -1 : 1)
+      this.viewModel = clientes.map(cl => toView(cl))
       console.log('clientes:',clientes)
     });
   }
-  editCliente(cliente:Cliente) {    
+  editCliente(cliente:Cliente) {
     if(!this.isEditing){
       console.log('client:',cliente)
       return;
@@ -78,12 +80,12 @@ export class ClienteTableComponent {
 
   deleteCliente(clienteId:number) {
     console.log('clienteId:',clienteId)
-    this.clienteService.deleteCliente(clienteId).subscribe(_ => {      
+    this.clienteService.deleteCliente(clienteId).subscribe(_ => {
       this.loadClientes()
     });
-  }  
+  }
 
-  addOrUpdateCliente() {    
+  addOrUpdateCliente() {
     const { nome, documento, telefone, endereco }: CreateClienteRequest = this.clienteForm.value
     const userId = this.authService.getUserId()
     const cliente:Cliente = {
@@ -93,6 +95,7 @@ export class ClienteTableComponent {
       ,documento
       ,endereco
       ,telefone
+      ,cobrancas:[]
     }
     console.log('cliente:',cliente)
     this.clienteService.addCliente(cliente).subscribe(cliente => {
@@ -100,34 +103,34 @@ export class ClienteTableComponent {
       this.loadClientes()
     })
     this.isAddingCliente = !this.isAddingCliente
-  }  
+  }
   toggleModal(newState:boolean){
     console.log('newState:',newState)
     this.isAddingCobranca = newState
   }
   // cobranca operations
-  openCobrancaModal(clienteId: number): void {    
-    this.currentClienteId = clienteId;        
+  openCobrancaModal(clienteId: number): void {
+    this.currentClienteId = clienteId;
     this.newCobranca.clienteId = clienteId
     // this.initAddCobrancaEvent.next(clienteId)
     this.isAddingCobranca = true
     // this.onAddCobrancaClick.emit(this.currentClienteId)
     console.log('this.currentClienteId:',this.currentClienteId)
-    
+
   }
 
-  onCobrancaAdded(cobranca: Cobranca): void {    
+  onCobrancaAdded(cobranca: ICobranca): void {
     console.log('New Cobranca Added:', cobranca);
   }
   openModal(clienteId: number): void {
     if(clienteId === 0){
       return;
-    }    
-    this.newCobranca.clienteId = clienteId;            
+    }
+    this.newCobranca.clienteId = clienteId;
   }
 
 
-  closeModal(): void {    
+  closeModal(): void {
     this.currentClienteId = 0
   }
 

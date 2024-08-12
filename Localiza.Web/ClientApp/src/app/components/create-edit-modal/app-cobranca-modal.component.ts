@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output,Input } from '@angular/core'
-import { Cobranca } from '../../services/cobranca.model'
+import { ICobranca } from '../../services/cobranca.model'
 import { CobrancaService } from '../../services/cobranca.service'
 import { Observable, Subscription } from 'rxjs';
 
@@ -10,47 +10,47 @@ import { Observable, Subscription } from 'rxjs';
 })
 export class CreateEditModalComponent {
   private eventsSubscription: Subscription | null = null;
-  @Output() cobrancaAdded = new EventEmitter<Cobranca>();  
-  @Output() modalStateChange = new EventEmitter<boolean>();    
+  @Output() cobrancaAdded = new EventEmitter<ICobranca>();
+  @Output() modalStateChange = new EventEmitter<boolean>();
   @Input() addCobrancaEvent: Observable<number> | null = null;
   @Input() addCobrancaMsg: object = { clienteId: 0}
   _clienteId: number = 0;
-  newCobranca: Cobranca = { id: 0, clienteId: 0, valor: 0, dataVencimento: new Date(), pago: false, descricao: '' };
+  newCobranca: ICobranca = { id: 0, clienteId: 0, valor: 0, dataVencimento: new Date(), pago: false, descricao: '' };
   // showModal: boolean = false;
 
-  constructor(private cobrancaService: CobrancaService) {        
-    
+  constructor(private cobrancaService: CobrancaService) {
+
   }
   ngOnInit(){
     if(!this.addCobrancaEvent){
       console.log('no events')
       return;
     }
-    this.eventsSubscription = this.addCobrancaEvent.subscribe((id) => {   
-      console.log('id:',id)   
+    this.eventsSubscription = this.addCobrancaEvent.subscribe((id) => {
+      console.log('id:',id)
       // this.openModal(id)
-    });    
+    });
   }
-  
+
   ngOnDestroy() {
     if(!this.eventsSubscription){
       return;
     }
     this.eventsSubscription.unsubscribe();
   }
-  
+
   public get clienteId() : number {
     return this._clienteId
   }
   @Input()
-  public set clienteId(id:number) {    
+  public set clienteId(id:number) {
     this._clienteId = id
     // this.openModal(id);
   }
   openModal(clienteId: number): void {
     if(clienteId === 0){
       return;
-    }    
+    }
     this.newCobranca.clienteId = clienteId;
     console.log('this.eventsSubscription:',this.eventsSubscription)
     // this.showModal = true;
@@ -58,10 +58,10 @@ export class CreateEditModalComponent {
   }
 
 
-  closeModal(): void {    
-    this.clienteId = 0    
-    this.modalStateChange.emit(false)    
-    // this.showModal = false;    
+  closeModal(): void {
+    this.clienteId = 0
+    this.modalStateChange.emit(false)
+    // this.showModal = false;
   }
 
   addCobranca(): void {

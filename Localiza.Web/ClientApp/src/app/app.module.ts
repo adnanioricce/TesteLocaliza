@@ -13,7 +13,7 @@ import { ClienteTableComponent } from './components/cliente-table/cliente-table.
 import { LoginComponent  } from "./components/login/login.component";
 import { SignupComponent  } from "./components/signup/signup.component";
 import { AuthService } from "./services/auth.service"
-
+import "bootstrap"
 @NgModule({
   declarations: [
     AppComponent,

@@ -1,18 +1,6 @@
 <div class="container">
-  <h1>Clientes</h1>
-  <!-- <form [formGroup]="clienteForm" (ngSubmit)="addOrUpdateCliente()">
-    <input formControlName="nome" placeholder="Nome" required>
-    <input formControlName="documento" type="text" placeholder="Documento" required>
-    <input formControlName="telefone" type="text" placeholder="Telefone" required>
-    <input formControlName="endereco" type="text" placeholder="Endereco" required>
-    <button type="submit">{{ isEditing ? 'Atualizar' : 'Cadastrar' }}</button>
-  </form> -->
-  <!-- <app-cobranca-modal   
-    [addCobrancaEvent]="initAddCobrancaEvent.asObservable()" 
-    (cobrancaAdded)="onCobrancaAdded($event)"
-    (modalStateChange)="toggleModal($event)"    
-    *ngIf="isAddingCobranca"></app-cobranca-modal> -->    
-  <button (click)="isAddingCliente = !isAddingCliente">Cadastrar</button>
+  <h1>Clientes</h1>  
+  <button class="btn btn-primary" (click)="isAddingCliente = !isAddingCliente">Cadastrar</button>
   <!-- Cliente Modal Form -->
   <div class="modal" *ngIf="isAddingCliente">
     <div class="modal-content">
@@ -20,22 +8,22 @@
       <h2>Registrar Novo Cliente</h2>
       <form [formGroup]="clienteForm" (ngSubmit)="addOrUpdateCliente()">        
         <div>
-          <label for="nome">Nome:</label>
-          <input id="nome" type="text" formControlName="nome" name="nome" required>
+          <label for="nome" class="form-label">Nome:</label>
+          <input class="form-control" id="nome" type="text" formControlName="nome" name="nome" required>
         </div>
         <div>
-          <label for="documento">Documento:</label>
-          <input id="documento" type="string" formControlName="documento" name="documento" required>
+          <label for="documento" class="form-label">Documento:</label>
+          <input class="form-control" id="documento" type="string" formControlName="documento" name="documento" required>
         </div>
         <div>
-          <label for="endereco">Endereco:</label>
-          <input id="endereco" formControlName="endereco" name="endereco">
+          <label for="endereco" class="form-label">Endereco:</label>
+          <input class="form-control" id="endereco" formControlName="endereco" name="endereco">
         </div>
         <div>
-          <label for="telefone">Telefone:</label>
-          <input id="telefone" formControlName="telefone" name="telefone">
+          <label for="telefone" class="form-label">Telefone:</label>
+          <input class="form-control" id="telefone" formControlName="telefone" name="telefone">
         </div>
-        <button type="submit">Registrar Cliente</button>
+        <button class="btn btn-primary" type="submit">Registrar Cliente</button>
       </form>
     </div>
   </div>
@@ -56,32 +44,32 @@
           <label for="descricao">Descrição:</label>
           <input id="descricao" [(ngModel)]="newCobranca.descricao" name="descricao">
         </div>
-        <button type="submit">Registrar Cobranca</button>
+        <button class="btn btn-primary" type="submit">Registrar Cobranca</button>
       </form>
     </div>
   </div>
-  <table >
+  <table class="table table-striped">
     <thead>
       <tr>
-        <th>Id</th>
-        <th>Nome</th>
-        <th>Documento</th>
-        <th>Telefone</th>          
-        <th>Endereco</th>
+        <th scope="col">Id</th>
+        <th scope="col">Nome</th>
+        <th scope="col">Pagos</th>
+        <th scope="col">Abertos</th>          
+        <th scope="col">Atrasados</th>
+        <th>#</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let cliente of clientes">
-        <td>{{ cliente.id }}</td>
-        <td>{{ cliente.nome }}</td>
-        <td>{{ cliente.documento }}</td>
-        <td>{{ cliente.telefone }}</td>
-        <td>{{ cliente.endereco }}</td>
-        <td>
-          <!-- <button (click)="editCliente(cliente)">Editar</button> -->
-          <button (click)="goToCobrancas(cliente.id)">Cobrancas</button>
-          <button (click)="openCobrancaModal(cliente.id)">Adicionar Cobranca</button>
-          <button (click)="deleteCliente(cliente.id)">Excluir</button>
+      <tr *ngFor="let line of viewModel">
+        <td>{{ line.id }} </td>
+        <td>{{ line.nome }}</td>
+        <td class="green">{{ line.pagos }}</td>
+        <td class="blue">{{ line.abertos }}</td>
+        <td class="red">{{ line.atrasados }}</td>
+        <td>          
+          <button class="btn btn-primary" (click)="goToCobrancas(line.id)">Cobrancas</button>
+          <button class="btn btn-primary" (click)="openCobrancaModal(line.id)">Nova Cobranca</button>
+          <button class="btn btn-danger" (click)="deleteCliente(line.id)">Excluir</button>
         </td>
       </tr>
     </tbody>

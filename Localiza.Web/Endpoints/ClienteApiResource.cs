@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using Localiza.Web.DAL;
+using System.Collections.Immutable;
 
 public static class ClienteApiResource
 {    
@@ -24,17 +25,40 @@ public static class ClienteApiResource
             SELECT Id, UsuarioId, Documento, Nome, Telefone, Endereco
             FROM Clientes
             WHERE Id = @Id;";
-
-        return await connection.QuerySingleOrDefaultAsync<Cliente>(sql, new { Id = id });
+        const string queryCobrancasSql = @"
+            SELECT * FROM Cobrancas WHERE Id = @Id
+        ";
+        var cliente = await connection.QuerySingleOrDefaultAsync<Cliente>(sql, new { Id = id });
+        if(cliente is null){
+            return null;
+        }
+        var cobrancas = await connection.QueryAsync<Cobranca>(queryCobrancasSql,new { Id = id });        
+        return cliente with {
+            Cobrancas = cobrancas.ToImmutableList()
+        };
     }
 
     public static async Task<IEnumerable<Cliente>> GetAllClientesAsync(this IDbConnection connection,int UsuarioId)
     {
         const string sql = @"
             SELECT Id, UsuarioId, Documento, Nome, Telefone, Endereco
-            FROM Clientes WHERE UsuarioId = @UsuarioId;";
-
-        return await connection.QueryAsync<Cliente>(sql,new {UsuarioId});
+            FROM Clientes WHERE UsuarioId = @UsuarioId;
+            select c.id,cl.usuarioid ,c.clienteid,c.valor,c.datavencimento,c.pago,c.descricao from cobrancas c
+	            join clientes cl on cl.id = c.clienteid 		
+	            join usuarios usr on usr.id  = cl.usuarioid 
+            where cl.usuarioid = @UsuarioId";        
+        using var resultSet = await connection.QueryMultipleAsync(sql);
+        var clientes = await resultSet.ReadAsync<Cliente>();
+        if(clientes is null){
+            return [];
+        }
+        var cobrancas = await resultSet.ReadAsync<Cobranca>();
+        if(cobrancas is null){
+            return clientes;
+        }
+        return clientes.Select(cliente => cliente with {
+            Cobrancas = cobrancas.Where(cobranca => cobranca.ClienteId == cliente.Id).ToImmutableList()
+        });        
     }
 
     public static async Task<bool> UpdateClienteAsync(this IDbConnection connection, Cliente cliente)
@@ -131,12 +155,13 @@ public static class ClienteApiResource
     }
 }
 
-public record Cliente
+public record Cliente()
 {
-    public int Id { get; set; }
-    public int UsuarioId { get; set; }
-    public string Documento { get; set; } = default!;
-    public string Nome { get; set; } = default!;
-    public string Telefone { get; set; } = default!;
-    public string Endereco { get; set; } = default!;
+    public int Id { get; init; }
+    public int UsuarioId { get; init; }
+    public string Documento { get; init; } = default!;
+    public string Nome { get; init; } = default!;
+    public string Telefone { get; init; } = default!;
+    public string Endereco { get; init; } = default!;
+    public IReadOnlyList<Cobranca> Cobrancas { get; init; } = default!;
 }

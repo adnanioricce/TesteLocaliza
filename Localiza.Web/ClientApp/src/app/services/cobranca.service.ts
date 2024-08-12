@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Cobranca } from './cobranca.model';
+import { ICobranca } from './cobranca.model';
 
 @Injectable({
   providedIn: 'root'
@@ -11,20 +11,20 @@ export class CobrancaService {
 
   constructor(private http: HttpClient) {}
 
-  createCobranca(cobranca: Cobranca): Observable<Cobranca> {
-    return this.http.post<Cobranca>(this.baseUrl, cobranca);
+  createCobranca(cobranca: ICobranca): Observable<ICobranca> {
+    return this.http.post<ICobranca>(this.baseUrl, cobranca);
   }
 
-  getCobrancaById(id: number): Observable<Cobranca> {
-    return this.http.get<Cobranca>(`${this.baseUrl}/${id}`);
+  getCobrancaById(id: number): Observable<ICobranca> {
+    return this.http.get<ICobranca>(`${this.baseUrl}/${id}`);
   }
 
-  getAllCobrancas(clienteId: number): Observable<Cobranca[]> {
-    return this.http.get<Cobranca[]>(`${this.baseUrl.replace('cobrancas','clientes')}/${clienteId}/cobrancas`);
+  getAllCobrancas(clienteId: number): Observable<ICobranca[]> {
+    return this.http.get<ICobranca[]>(`${this.baseUrl.replace('cobrancas','clientes')}/${clienteId}/cobrancas`);
   }
 
-  updateCobranca(cobranca: Cobranca): Observable<Cobranca> {
-    return this.http.put<Cobranca>(`${this.baseUrl}/${cobranca.id}`, cobranca);
+  updateCobranca(cobranca: ICobranca): Observable<ICobranca> {
+    return this.http.put<ICobranca>(`${this.baseUrl}/${cobranca.id}`, cobranca);
   }
 
   deleteCobranca(id: number): Observable<void> {
