@@ -1,6 +1,6 @@
 <div class="container">
   <h1>Clientes</h1>  
-  <button class="btn btn-primary" (click)="isAddingCliente = !isAddingCliente">Cadastrar</button>
+  <button class="btn btn-dark" (click)="isAddingCliente = !isAddingCliente">Cadastrar</button>
   <!-- Cliente Modal Form -->
   <div class="modal" *ngIf="isAddingCliente">
     <div class="modal-content">
@@ -24,33 +24,36 @@
           <input class="form-control" id="telefone" formControlName="telefone" name="telefone">
         </div>
         <button class="btn btn-primary" type="submit">Registrar Cliente</button>
+        <button class="btn btn-danger" (click)="isAddingCliente = !isAddingCliente">&times;</button>
+        <!-- <button class="btn btn-danger " (click)="closeModal()">&times;</button> -->
       </form>
     </div>
   </div>
   <div class="modal" *ngIf="currentClienteId !== 0">
     <div class="modal-content">
-      <span class="close" (click)="closeModal()">&times;</span>
-      <h2>Add Cobranca</h2>
+      <!-- <span class="close" (click)="closeModal()">&times;</span> -->
+      <h2>Adicionar Cobrança</h2>
       <form (ngSubmit)="addCobranca()">        
         <div>
-          <label for="valor">Valor:</label>
-          <input id="valor" type="number" [(ngModel)]="newCobranca.valor" name="valor" required>
+          <label for="valor" class="form-label">Valor:</label>
+          <input class="form-control" id="valor" type="number" [(ngModel)]="newCobranca.valor" name="valor" required>
         </div>
         <div>
-          <label for="dataVencimento">Data Vencimento:</label>
-          <input id="dataVencimento" type="date" [(ngModel)]="newCobranca.dataVencimento" name="dataVencimento" required>
+          <label for="dataVencimento" class="form-label">Data Vencimento:</label>
+          <input class="form-control" id="dataVencimento" type="date" [(ngModel)]="newCobranca.dataVencimento" name="dataVencimento" required>
         </div>
         <div>
-          <label for="descricao">Descrição:</label>
-          <input id="descricao" [(ngModel)]="newCobranca.descricao" name="descricao">
+          <label for="descricao" class="form-label">Descrição:</label>
+          <input class="form-control" id="descricao" [(ngModel)]="newCobranca.descricao" name="descricao">
         </div>
-        <button class="btn btn-primary" type="submit">Registrar Cobranca</button>
+        <button class="btn btn-success" type="submit"><i class="bi bi-check"></i></button>
+        <button class="btn btn-danger " (click)="closeModal()">&times;</button>
       </form>
     </div>
   </div>
   <table class="table table-striped">
     <thead>
-      <tr>
+      <tr class="table-dark">
         <th scope="col">Id</th>
         <th scope="col">Nome</th>
         <th scope="col">Pagos</th>
@@ -67,9 +70,9 @@
         <td class="blue">{{ line.abertos }}</td>
         <td class="red">{{ line.atrasados }}</td>
         <td>          
-          <button class="btn btn-primary" (click)="goToCobrancas(line.id)">Cobrancas</button>
-          <button class="btn btn-primary" (click)="openCobrancaModal(line.id)">Nova Cobranca</button>
-          <button class="btn btn-danger" (click)="deleteCliente(line.id)">Excluir</button>
+          <button class="btn btn-dark" (click)="goToCobrancas(line.id)">Cobrancas</button>
+          <button class="btn btn-dark" (click)="openCobrancaModal(line.id)">Criar Nova Cobranca</button>
+          <button class="btn btn-danger bi bi-trash3-fill" (click)="deleteCliente(line.id)"></button>
         </td>
       </tr>
     </tbody>

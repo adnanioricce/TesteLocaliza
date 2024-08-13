@@ -16,10 +16,14 @@ interface CobrancaTableViewModel {
 export class CobrancasTableComponent implements OnInit {
   vm: CobrancaTableViewModel = {
     clienteId:0
-    ,linhas: [
-      { id: 0, clienteId: 0, descricao: '',dataVencimento: new Date(),valor: 0.0, pago: false }
-    ]
+    ,linhas:[]
+    // ,linhas: [
+    //   { id: 0, clienteId: 0, descricao: '',dataVencimento: new Date(),valor: 0.0, pago: false }
+    // ]
   };
+  linhas = [
+    { id: 0, clienteId: 0, descricao: '',dataVencimento: new Date(),valor: 0.0, pago: false }
+  ]
   newCobranca: ICobranca = { id: 0, clienteId: 0, descricao: '',dataVencimento: new Date(),valor: 0.0, pago: false };
   state: 'editing' | 'adding' | 'read' = 'read'
   constructor(private route: ActivatedRoute,private cobrancaService: CobrancaService) {}
@@ -43,6 +47,11 @@ export class CobrancasTableComponent implements OnInit {
     this.state = 'editing'
     this.newCobranca = cobranca
   }
+  onAddCobranca(){
+    this.clearCobranca()
+    this.state = 'adding'
+    this.newCobranca.clienteId = this.vm.clienteId
+  }
   closeModal(){
     this.state = 'read'
   }
@@ -53,19 +62,16 @@ export class CobrancasTableComponent implements OnInit {
   loadCobrancas(): void {
     this.cobrancaService.getAllCobrancas(this.vm.clienteId).subscribe(cobrancas => {
 
-      this.vm.linhas = cobrancas;
+      this.linhas = cobrancas;
 
     });
   }
 
   addOrUpdateCobranca(): void {
     if(this.state === 'adding'){
-      this.cobrancaService.createCobranca(this.newCobranca).subscribe(cobranca => {
-
-        this.vm.linhas.push(cobranca);
-
+      this.cobrancaService.createCobranca(this.newCobranca).subscribe(cobranca => {        
         this.clearCobranca()
-
+        this.loadCobrancas()
       });
     }
     if(this.state === 'editing'){
@@ -78,11 +84,11 @@ export class CobrancasTableComponent implements OnInit {
 
     this.cobrancaService.updateCobranca(updatedCobranca).subscribe(cobranca => {
 
-      const index = this.vm.linhas.findIndex(c => c.id === cobranca.id);
+      const index = this.linhas.findIndex(c => c.id === cobranca.id);
 
       if (index !== -1) {
 
-        this.vm.linhas[index] = cobranca;
+        this.linhas[index] = cobranca;
 
       }
       this.clearCobranca()
@@ -95,7 +101,7 @@ export class CobrancasTableComponent implements OnInit {
 
     this.cobrancaService.deleteCobranca(cobrancaId).subscribe(() => {
 
-      this.vm.linhas = this.vm.linhas.filter(c => c.id !== cobrancaId);
+      this.linhas = this.linhas.filter(c => c.id !== cobrancaId);
 
     });
 

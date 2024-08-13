@@ -1,6 +1,7 @@
 <div class="container table-container">
     <h1>Cobrancas</h1>
-    <button class="btn btn-primary">Cadastrar</button>
+    <button (click)="onAddCobranca()" class="btn btn-dark">Cadastrar</button>
+    
     <table class="table table-striped">
       <thead>
         <tr class="table-dark">
@@ -11,57 +12,38 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let cobranca of vm.linhas">
+        <tr *ngFor="let cobranca of linhas">
           <td>{{cobranca.descricao}}</td>
           <td>R$ {{cobranca.valor.toFixed(2)}}</td>
           <td>{{formatDate(cobranca.dataVencimento)}}</td>          
           <td>
-            <button (click)="onEditCobranca(cobranca)" class="btn btn-primary">Editar</button>
-            <button class="btn btn-primary">Deletar</button>
+            <button (click)="onEditCobranca(cobranca)" class="btn btn-primary bi bi-pencil-square"></button>
+            <button (click)="deleteCobranca(cobranca.id)" class="btn btn-danger bi bi-trash3-fill"></button>
           </td>
         </tr>
       </tbody>
     </table>    
     <div class="modal" *ngIf="state === 'adding' || state === 'editing'">
       <div class="modal-content">
-        <span class="close" (click)="closeModal()">&times;</span>
+        
         <h2 *ngIf="state === 'adding'">Adicionar Cobranca</h2>
         <h2 *ngIf="state === 'editing'">Editar Cobranca</h2>
         <form (ngSubmit)="addOrUpdateCobranca()">        
           <div>
-            <label for="valor">Valor:</label>
-            <input id="valor" type="number" [(ngModel)]="newCobranca.valor" name="valor" required>
+            <label class="form-label" for="valor" >Valor:</label>
+            <input class="form-control" id="valor" type="number" [(ngModel)]="newCobranca.valor" name="valor" required>
           </div>
           <div>
-            <label for="dataVencimento">Data Vencimento:</label>
-            <input id="dataVencimento" type="date" [(ngModel)]="newCobranca.dataVencimento" name="dataVencimento" required>
+            <label class="form-label" for="dataVencimento">Data Vencimento:</label>
+            <input class="form-control" id="dataVencimento" type="date" [(ngModel)]="newCobranca.dataVencimento" name="dataVencimento" required>
           </div>
           <div>
-            <label for="descricao">Descrição:</label>
-            <input id="descricao" [(ngModel)]="newCobranca.descricao" name="descricao">
+            <label class="form-label" for="descricao">Descrição:</label>
+            <input class="form-control" id="descricao" [(ngModel)]="newCobranca.descricao" name="descricao">
           </div>
-          <button class="btn btn-primary" type="submit">Registrar Cobranca</button>
+          <button class="btn btn-success" type="submit"><i class="bi bi-check"></i></button>          
+          <button class="btn btn-danger " (click)="closeModal()">&times;</button>
         </form>
       </div>
-    </div>
-    <!-- <h2>Adicionar Cobranca</h2>           -->
-    <!-- <form (ngSubmit)="addCobranca()">
-      <div>
-        <label for="clienteId">Cliente ID:</label>
-        <input id="clienteId" [(ngModel)]="newCobranca.clienteId" name="clienteId" required>
-      </div>
-      <div>
-        <label for="valor">Valor:</label>
-        <input id="valor" type="number" [(ngModel)]="newCobranca.valor" name="valor" required>
-      </div>
-      <div>
-        <label for="dataVencimento">Data Vencimento:</label>
-        <input id="dataVencimento" type="date" [(ngModel)]="newCobranca.dataVencimento" name="dataVencimento" required>
-      </div>
-      <div>
-        <label for="descricao">Descrição:</label>
-        <input id="descricao" [(ngModel)]="newCobranca.descricao" name="descricao">
-      </div>
-      <button type="submit">Cadastrar Cobrança</button>
-    </form>         -->
+    </div>    
   </div>

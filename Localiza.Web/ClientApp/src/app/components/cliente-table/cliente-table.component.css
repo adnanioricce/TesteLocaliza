@@ -1,10 +1,10 @@
-.container {
+/* .container {
     max-width: 800px;
     margin: auto;
     padding: 20px;
     background-color: #f9f9f9;
     border-radius: 8px;
-}
+} */
 
 h1 {
     text-align: center;
@@ -61,4 +61,10 @@ input {
 
 .red {
     color: red;
+}
+td .btn {
+    margin: 1%;
+}
+.btn {
+    margin-bottom: 1%;
 }

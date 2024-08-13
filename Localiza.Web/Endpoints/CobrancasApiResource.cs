@@ -75,7 +75,9 @@ public static class CobrancasApiResource
             {
                 using var db = factory();
                 var id = await db.CreateCobrancaAsync(cobranca);
-                return Results.Created($"api/cobrancas/{id}", id);
+                var createdCobranca = await db.GetCobrancaByIdAsync(id);
+                return Results.Created($"api/cobrancas/{id}", createdCobranca);
+                // return Results.Created($"api/cobrancas/{id}", id);
             }
             catch (KeyNotFoundException ex)
             {
