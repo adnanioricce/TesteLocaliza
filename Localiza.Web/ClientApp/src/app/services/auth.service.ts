@@ -11,7 +11,7 @@ export interface LoginResponse {
   providedIn: 'root'
 })
 export class AuthService {
-  private baseUrl: string = 'https://localhost:7012/api/auth'; // Adjust to your API endpoint
+  private baseUrl: string = 'http://localhost:5047/api/auth'; // Adjust to your API endpoint
   private token: string | null = null;
 
   constructor(private http: HttpClient, private router: Router) {}

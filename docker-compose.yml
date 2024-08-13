@@ -4,9 +4,25 @@ version: '3.4'
 
 services:
   localizaweb:
-    image: localizaweb
+    image: adnanioricce/localizaweb
     build:
       context: .
       dockerfile: Localiza.Web/Dockerfile
     ports:
-      - 5046:5046
+      - 5047:5046
+    environment:
+      - ConnectionStrings__Default=Host=localizadb;Port=5432;Username=localizador;Password=localizapw;Database=localizadb
+      - Jwt__Key="42e00c43-7208-4951-ac86-da2beb027d4e"
+      - Jwt__Issuer="localizaweb"
+      - Jwt__Audience="localizaweb"
+    depends_on:
+      - localizadb      
+  localizadb:
+    image: adnanioricce/localizadb
+    build:
+      context: Db/
+      dockerfile: Dockerfile          
+    environment:
+      - POSTGRES_PASSWORD=localizapw
+    ports:
+      - "5436:5432"

@@ -7,7 +7,7 @@ import { ICobranca } from './cobranca.model';
   providedIn: 'root'
 })
 export class CobrancaService {
-  private baseUrl: string = 'https://localhost:7012/api/cobrancas';
+  private baseUrl: string = 'http://localhost:5047/api/cobrancas';
 
   constructor(private http: HttpClient) {}
 

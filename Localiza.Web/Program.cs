@@ -13,7 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Configuration.AddEnvironmentVariables();
 // Add services to the container.
 // builder.Environment.
 var connStr = builder.Configuration.GetConnectionString("Default");
@@ -39,7 +39,7 @@ builder.Services.AddAuthentication(options =>
     {
         var jwtKey = builder.Configuration["Jwt:Key"] ?? "";
         if(string.IsNullOrWhiteSpace(jwtKey)){
-            throw new InvalidConfigurationException("configuration key 'Jwt:Key' is present or empty");
+            throw new InvalidConfigurationException("configuration key 'Jwt:Key' is not present or empty");
         }
         options.TokenValidationParameters = new TokenValidationParameters
         {

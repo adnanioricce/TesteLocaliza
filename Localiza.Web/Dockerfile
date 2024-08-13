@@ -16,6 +16,11 @@ RUN dotnet build "Localiza.Web.csproj" -c $configuration -o /app/build
 
 FROM build AS publish
 ARG configuration=Release
+# Install Node.js and npm
+RUN apt-get update && \
+    apt-get install -y curl && \
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs
 RUN dotnet publish "Localiza.Web.csproj" -c $configuration -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
